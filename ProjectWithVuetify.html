@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do App</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@3.x/dist/vuetify.min.css" rel="stylesheet">
+  <style>
+    [v-cloak] {
+      display: none
+    }
+
+    .router-link-active .v-btn__content {
+      color: rgb(var(--v-theme-primary));
+      font-weight: 500;
+    }
+
+    .strikeout {
+      text-decoration: line-through;
+    }
+
+    .priority {
+      color: red;
+      font-weight: bold;
+    }
+
+    .add-item-form {
+      margin: 10px 0;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 10px;
+      margin: 5px 0;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" v-cloak>
+    <v-app id="inspire">
+      <v-app-bar flat>
+        <v-container class="mx-auto d-flex align-center justify-center">
+          <v-avatar class="me-4" color="grey-darken-1" size="32"></v-avatar>
+
+          <v-btn to="/profile" variant="text" active-class="router-link-active">
+            Profile
+          </v-btn>
+
+          <v-btn to="/updates" variant="text" active-class="router-link-active">
+            To-Do List
+          </v-btn>
+
+          <v-spacer></v-spacer>
+
+          <v-responsive max-width="160">
+            <v-text-field density="compact" label="Search" rounded="lg" variant="solo-filled" flat hide-details
+              single-line></v-text-field>
+          </v-responsive>
+        </v-container>
+      </v-app-bar>
+
+      <v-main class="bg-grey-lighten-3">
+        <router-view></router-view>
+      </v-main>
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.x/dist/vue.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@3.x/dist/vuetify.min.js"></script>
+  <script src="https://unpkg.com/vue-router@4"></script>
+  <script>
+    const { createApp } = Vue;
+    const { createVuetify } = Vuetify;
+    const { createRouter, createWebHashHistory } = VueRouter;
+
+    const vuetify = createVuetify();
+
+    // Компонент Profile
+    const Profile = {
+      template: `
+        <v-sheet min-height="70vh" rounded="lg">
+          <v-container>
+            <v-row>
+              <v-col cols="12" md="4">
+                <v-card>
+                  <v-card-text class="text-center">
+                    <v-avatar size="120" color="primary" class="mb-4">
+                      <span class="text-h3">{{ user.name.charAt(0) }}</span>
+                    </v-avatar>
+                    <div class="text-h5">{{ user.name }}</div>
+                    <div class="text-subtitle-1">{{ user.position }}</div>
+                    <v-chip class="mt-2" color="primary">{{ user.role }}</v-chip>
+                    
+                    <v-divider class="my-4"></v-divider>
+                    
+                    <v-list density="compact">
+                      <v-list-item prepend-icon="mdi-email" :title="user.email"></v-list-item>
+                      <v-list-item prepend-icon="mdi-phone" :title="user.phone"></v-list-item>
+                      <v-list-item prepend-icon="mdi-map-marker" :title="user.location"></v-list-item>
+                    </v-list>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+              
+              <v-col cols="12" md="8">
+                <v-card title="Информация">
+                  <v-card-text>
+                    <v-tabs v-model="tab">
+                      <v-tab value="about">Обо мне</v-tab>
+                      <v-tab value="skills">Навыки</v-tab>
+                      <v-tab value="projects">Проекты</v-tab>
+                    </v-tabs>
+                    
+                    <v-window v-model="tab">
+                      <v-window-item value="about">
+                        <div class="pa-4">
+                          <p>{{ user.bio }}</p>
+                        </div>
+                      </v-window-item>
+                      
+                      <v-window-item value="skills">
+                        <div class="pa-4">
+                          <v-chip v-for="skill in user.skills" :key="skill" class="ma-1">{{ skill }}</v-chip>
+                        </div>
+                      </v-window-item>
+                      
+                      <v-window-item value="projects">
+                        <v-list>
+                          <v-list-item v-for="project in user.projects" :key="project.name" :title="project.name">
+                            <template v-slot:append>
+                              <v-chip size="small">{{ project.year }}</v-chip>
+                            </template>
+                          </v-list-item>
+                        </v-list>
+                      </v-window-item>
+                    </v-window>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-sheet>
+      `,
+      data: () => ({
+        user: {
+          name: 'Коницкий Антон',
+          position: 'Frontend Developer',
+          role: 'ЭВМб-23-1',
+          email: 'Toni_200404@mail.ru',
+          phone: '+7 914 3174545',
+          location: 'Иркутск, Россия',
+          bio: 'Фронтенд разработчик с 2-летним стажем. Изучаю Vue.js и Vuetify.',
+          skills: ['Vue.js', 'JavaScript', 'HTML/CSS', 'Vuetify', 'Git'],
+          projects: [
+            { name: 'https://подкастдлявас.рф', year: 2025 },
+            { name: 'https://elovpark.ru', year: 2024 },
+          ]
+        },
+        tab: 'about'
+      })
+    };
+
+    // Компонент To-Do List
+    const Updates = {
+      template: `
+        <v-sheet min-height="70vh" rounded="lg">
+          <v-container>
+            <div class="header">
+              <h1>{{header}}</h1>
+              <v-btn 
+                v-if="editing" 
+                @click="doEdit(false)" 
+                color="error"
+                variant="text"
+                class="ml-2"
+              >
+                Cancel
+              </v-btn>
+              <v-btn 
+                v-else 
+                @click="doEdit(true)" 
+                color="primary"
+                variant="tonal"
+                class="ml-2"
+              >
+                Add Item
+              </v-btn>
+            </div>
+
+            <div v-if="editing" class="add-item-form">
+              <v-text-field
+                @keyup.enter="saveItem"
+                v-model="newItem"
+                placeholder="Add an Item"
+                variant="outlined"
+              ></v-text-field>
+              <v-checkbox
+                v-model="newItemHighPriority"
+                label="Important!"
+              ></v-checkbox>
+              <v-btn @click="saveItem" color="primary">
+                Save Item
+              </v-btn>
+            </div>
+            
+            <p v-if="items.length === 0"></p>
+            
+            <v-list>
+              <v-list-item
+                v-for="item in reversedItems"
+                :key="item.id"
+                @click="togglePurchased(item)"
+                :class="{'strikeout': item.purchased, 'priority': item.highPriority}"
+              >
+                <template v-slot:append>
+                  <v-btn
+                    @click.stop="removeItem(item)"
+                    icon="mdi-close"
+                    variant="text"
+                    color="error"
+                  ></v-btn>
+                </template>
+                {{item.label}}
+              </v-list-item>
+            </v-list>
+          </v-container>
+        </v-sheet>
+      `,
+      data() {
+        return {
+          header: 'To-Do List',
+          editing: false,
+          newItem: '',
+          newItemHighPriority: false,
+          items: []
+        }
+      },
+      computed: {
+        reversedItems() {
+          return [...this.items].reverse()
+        }
+      },
+      methods: {
+        saveItem() {
+          if (this.newItem.trim() === '') return;
+
+          this.items.push({
+            id: this.items.length + 1,
+            label: this.newItem,
+            highPriority: this.newItemHighPriority,
+            purchased: false
+          })
+          this.newItem = ""
+          this.newItemHighPriority = false
+        },
+        doEdit(editing) {
+          this.editing = editing
+          this.newItem = ""
+          this.newItemHighPriority = false
+        },
+        togglePurchased(item) {
+          item.purchased = !item.purchased
+        },
+        removeItem(itemToRemove) {
+          this.items = this.items.filter(item => item.id !== itemToRemove.id)
+        }
+      }
+    };
+
+    // Роутер
+    const router = createRouter({
+      history: createWebHashHistory(),
+      routes: [
+        { path: '/', redirect: '/updates' },
+        { path: '/profile', component: Profile },
+        { path: '/updates', component: Updates }
+      ]
+    });
+
+    // Создание приложения
+    createApp({
+      data: () => ({
+        links: [
+          { id: 1, title: 'Profile', route: '/profile' },
+          { id: 2, title: 'To-Do List', route: '/updates' }
+        ]
+      })
+    })
+      .use(vuetify)
+      .use(router)
+      .mount('#app');
+  </script>
+</body>
+
+</html>
